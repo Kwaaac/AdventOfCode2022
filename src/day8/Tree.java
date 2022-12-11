@@ -1,4 +1,4 @@
-package Day8;
+package day8;
 
 public record Tree(boolean hiddenLeft,
                    boolean hiddenRight,
