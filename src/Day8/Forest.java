@@ -2,17 +2,12 @@ package Day8;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public record Forest(Tree[][] matrix) {
-    public static boolean[][] visibles;
 
     public static Forest ForestFromInput(List<String> lines) {
         int m = lines.size();
-
-        visibles = new boolean[m][m];
-        for (int i = 0; i < m; i++) {
-            Arrays.fill(visibles[i], true);
-        }
 
         Tree[][] matrix = new Tree[m][m];
 
@@ -32,38 +27,92 @@ public record Forest(Tree[][] matrix) {
         return Arrays.deepToString(matrix).replaceAll("], \\[", "],\n[");
     }
 
-    private void updateVisible(int x, int y) {
-        Tree tree = matrix[x][y];
+    public void updateVisible(int x, int y) {
 
-        //left and up
-        for (int i = x - 1; i >= 0 || (tree.isHiddenLeft() && tree.isHiddenUp()); i--) {
-            if (!tree.isHiddenLeft() && tree.height() < matrix[x][i].height()) {
-                tree.setHiddenLeft(true);
+        // right
+        if (IntStream.range(y + 1, matrix.length).anyMatch(j -> matrix[x][y].height() <= matrix[x][j].height()))
+            matrix[x][y] = Tree.TreeFactoryHiddenDirection(matrix[x][y], Tree.Direction.RIGHT);
+
+        // left
+        for (int j = y - 1; j >= 0; j--) {
+            if (!matrix[x][y].hiddenLeft() && matrix[x][y].height() <= matrix[x][j].height()) {
+                matrix[x][y] = Tree.TreeFactoryHiddenDirection(matrix[x][y], Tree.Direction.LEFT);
             }
+        }
 
-            if (!tree.isHiddenUp() && tree.height() < matrix[i][y].height()) {
-                tree.setHiddenUp(true);
+        // down
+        if (IntStream.range(x + 1, matrix.length).anyMatch(i -> matrix[x][y].height() <= matrix[i][y].height()))
+            matrix[x][y] = Tree.TreeFactoryHiddenDirection(matrix[x][y], Tree.Direction.DOWN);
+
+
+        // up
+        for (int i = x - 1; i >= 0; i--) {
+            if (!matrix[x][y].hiddenUp() && matrix[x][y].height() <= matrix[i][y].height()) {
+                matrix[x][y] = Tree.TreeFactoryHiddenDirection(matrix[x][y], Tree.Direction.UP);
+            }
+        }
+    }
+
+    public Tree updateViewDistance(int x, int y) {
+        if (x == 0 || x == matrix.length - 1 || y == 0 || y == matrix.length - 1) {
+            return new Tree(0);
+
+        }
+
+
+        int right = 0;
+        for (int j = y + 1; j < matrix.length; j++) {
+            right++;
+            if (matrix[x][y].height() <= matrix[x][j].height()) {
+                break;
             }
         }
 
-        //right and down
-        for (int i = x + 1; i < matrix.length || (tree.isHiddenRight()) && tree.isHiddenDown(); i++) {
-            if (!tree.isHiddenRight() && tree.height() < matrix[x][i].height()) {
-                tree.setHiddenRight(true);
-            }
-
-            if (!tree.isHiddenDown() && tree.height() < matrix[i][y].height()) {
-                tree.setHiddenDown(true);
+        int down = 0;
+        for (int i = x + 1; i < matrix.length; i++) {
+            down++;
+            if (matrix[x][y].height() <= matrix[i][y].height()) {
+                break;
             }
         }
+
+        int left = 0;
+        for (int j = y - 1; j >= 0; j--) {
+            left++;
+            if (matrix[x][y].height() <= matrix[x][j].height()) {
+                break;
+            }
+        }
+
+        int up = 0;
+        for (int i = x - 1; i >= 0; i--) {
+            up++;
+            if (matrix[x][y].height() <= matrix[i][y].height()) {
+                break;
+            }
+        }
+
+        return new Tree(left * right * up * down);
+    }
+
+    public Forest buildScenicView() {
+        Tree[][] res = new Tree[matrix.length][matrix.length];
+
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                res[i][j] = updateViewDistance(i, j);
+            }
+        }
+
+        return new Forest(res);
     }
 
     public void buildVisible() {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix.length; j++) {
-                updateVisible(i, j);
+                if (!(i == 0 || i == matrix.length - 1 || j == 0 || j == matrix.length - 1))
+                    updateVisible(i, j);
             }
         }
-
     }
 }
