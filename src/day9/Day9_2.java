@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.HashSet;
 
 public class Day9_2 {
-    public static void printRope(Position[] rope){
+    public static void printRope(Position[] rope) {
         var l = 5;
         var c = 6;
 
@@ -20,9 +20,9 @@ public class Day9_2 {
 
         for (int i = rope.length - 1; i >= 0; i--) {
             var pos = rope[i];
-            if(i == 0){
+            if (i == 0) {
                 matrix[pos.x][pos.y] = "H";
-            } else if( i == 9){
+            } else if (i == 9) {
                 matrix[pos.x][pos.y] = "T";
             } else {
                 matrix[pos.x][pos.y] = String.valueOf(i);
@@ -54,7 +54,7 @@ public class Day9_2 {
         }
 
         res.add(new Position(4, 0));
-        printRope(rope);
+
         for (var line : lines) {
             var split = line.split(" ");
             var direction = split[0];
@@ -67,16 +67,17 @@ public class Day9_2 {
                 rope[0] = rope[0].move(direction);
                 int k = 1;
                 for (; k < rope.length; k++) {
+                    System.out.println("== " + direction + " " + i + " / " + movements + " :: " + k + " ==");
+                    printRope(rope);
                     lastRope[k] = new Position(rope[k]);
-                    var distance = Position.distance(rope[k-1], rope[k]);
+                    var distance = Position.distance(rope[k - 1], rope[k]);
                     if (distance > 1) {
-                        rope[k] = new Position(lastRope[k-1]);
+                        rope[k] = new Position(lastRope[k - 1]);
                         if (k == 9)
-                            res.add(new Position(lastRope[k-1]));
+                            res.add(new Position(lastRope[k - 1]));
                     }
                 }
             }
-
         }
 
         System.out.println(res.size());
@@ -98,6 +99,33 @@ public class Day9_2 {
                 case U -> new Position(x - 1, y);
                 case D -> new Position(x + 1, y);
             };
+        }
+
+        private boolean sameRow(Position nextKnot) {
+            return this.x == nextKnot.x;
+        }
+
+        private boolean sameColumn(Position nextKnot) {
+            return this.y == nextKnot.y;
+        }
+
+        public Position move(Position nextKnot) {
+            var distance = distance(this, nextKnot);
+            if (distance <= 1) {
+                return this;
+            }
+
+            if (sameRow(nextKnot)) {
+                return new Position(x, y + (nextKnot.y - y));
+            }
+
+            if (sameColumn(nextKnot)) {
+                return new Position(x + (nextKnot.x) - x, y);
+            }
+
+            
+
+            return null;
         }
 
         private enum Direction {
