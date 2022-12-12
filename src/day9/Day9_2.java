@@ -7,8 +7,8 @@ import java.util.HashSet;
 
 public class Day9_2 {
     public static void printRope(Position[] rope) {
-        var l = 5;
-        var c = 6;
+        var l = 30;
+        var c = 30;
 
         var matrix = new String[l][c];
 
@@ -37,23 +37,17 @@ public class Day9_2 {
     }
 
     public static void main(String[] args) throws IOException {
-        var input = Path.of("src", "day9/inputTest.txt");
+        var input = Path.of("src", "day9/input.txt");
         var lines = Files.readAllLines(input);
 
         var res = new HashSet<Position>();
         var rope = new Position[11];
-        var lastRope = new Position[11];
-
-        Position lastPosition = null;
-
-        // rope[0] == head
-        // rope[10] == tail
+        
         for (int i = 0; i < 11; i++) {
-            rope[i] = new Position(4, 0);
-            lastRope[i] = new Position(4, 0);
+            rope[i] = new Position(0, 0);
         }
 
-        res.add(new Position(4, 0));
+        res.add(new Position(0, 0));
 
         for (var line : lines) {
             var split = line.split(" ");
@@ -61,21 +55,17 @@ public class Day9_2 {
             int movements = Integer.parseInt(split[1]);
 
             for (int i = 0; i < movements; i++) {
-                System.out.println("== " + direction + " " + i + " / " + movements + " ==");
-                printRope(rope);
-                lastRope[0] = new Position(rope[0]);
+
                 rope[0] = rope[0].move(direction);
                 int k = 1;
                 for (; k < rope.length; k++) {
-                    System.out.println("== " + direction + " " + i + " / " + movements + " :: " + k + " ==");
-                    printRope(rope);
-                    lastRope[k] = new Position(rope[k]);
+
                     var distance = Position.distance(rope[k - 1], rope[k]);
-                    if (distance > 1) {
-                        rope[k] = new Position(lastRope[k - 1]);
-                        if (k == 9)
-                            res.add(new Position(lastRope[k - 1]));
+                    if (distance > 1 && k == 9) {
+                        res.add(new Position(rope[k]));
                     }
+
+                    rope[k] = rope[k].move(rope[k - 1]);
                 }
             }
         }
@@ -115,17 +105,18 @@ public class Day9_2 {
                 return this;
             }
 
+            var newX = x + Integer.compare(nextKnot.x - x, 0);
+            var newY = y + Integer.compare(nextKnot.y - y, 0);
+
             if (sameRow(nextKnot)) {
-                return new Position(x, y + (nextKnot.y - y));
+                return new Position(x, newY);
             }
 
             if (sameColumn(nextKnot)) {
-                return new Position(x + (nextKnot.x) - x, y);
+                return new Position(newX, y);
             }
 
-            
-
-            return null;
+            return new Position(newX, newY);
         }
 
         private enum Direction {
