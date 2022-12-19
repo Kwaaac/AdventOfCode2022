@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
 
-public class Day11 {
+public class Day11_2 {
     public static void main(String[] args) throws IOException {
-        var input = Path.of("src", "day_11/inputTest.txt");
+        var input = Path.of("src", "day_11/input.txt");
         var lines = Files.readAllLines(input);
         var nbrMonkeys = (int) lines.stream().filter(String::isEmpty).count() + 1;
         Monkey.initMonkeys(nbrMonkeys);
@@ -22,7 +22,7 @@ public class Day11 {
             Monkey.addMonkey(monkey, i);
         }
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10_000; i++) {
             System.out.println("Round " + (i + 1));
             Monkey.round();
         }
@@ -33,7 +33,7 @@ public class Day11 {
 
         Arrays.sort(Monkey.inspection);
 
-        System.out.println(Monkey.inspection[nbrMonkeys - 1] * Monkey.inspection[nbrMonkeys - 2]);
+        System.out.println((long) Monkey.inspection[nbrMonkeys - 1] * (long) Monkey.inspection[nbrMonkeys - 2]);
     }
 
     public static <T> List<T> subListClosed(List<T> list, int fromIndex, int toIndex) {
@@ -45,6 +45,7 @@ public class Day11 {
     }
 
     private record Monkey(ArrayDeque<Long> items, LongFunction<Long> operation, LongConsumer throwing) {
+        private static long supermodulo = 1;
 
         private static Monkey[] monkeys;
         private static int[] inspection;
@@ -109,12 +110,12 @@ public class Day11 {
             long divisor = Long.parseLong(lines.get(3).split("by ")[1]);
             int throwTrue = Integer.parseInt(lines.get(4).split("monkey ")[1]);
             int throwFalse = Integer.parseInt(lines.get(5).split("monkey ")[1]);
-
+            supermodulo *= divisor;
             LongConsumer throwing = (item) -> {
-                //if (item > supermodulo) item /= supermodulo;
-                item /= 3;
+                item %= supermodulo;
+
                 if (DEBUG)
-                    System.out.println("\t\tMonkey gets bored with item. Worry level is divided by 3 to " + item);
+                    System.out.println("\t\tMonkey gets bored with item. Worry level is divided by " + supermodulo + " to " + item);
                 if (item % divisor == 0) {
                     if (DEBUG) {
                         System.out.println("\t\tCurrent worry level is divisible by " + divisor);
