@@ -3,15 +3,9 @@ package day1;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Day1 {
-
-    private static void firstPuzzle(Stream<String> lines) {
-
-    }
 
     public static void main(String[] args) throws IOException {
         var input = Path.of("src", "day1/inputTest.txt");
