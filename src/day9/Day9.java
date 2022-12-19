@@ -32,7 +32,6 @@ public class Day9 {
                     res.add(new Position(lastPosition));
                 }
             }
-
         }
 
         System.out.println(res.size());
