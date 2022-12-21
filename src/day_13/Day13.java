@@ -8,20 +8,22 @@ import java.util.ArrayList;
 public class Day13 {
     public static void main(String[] args) throws IOException {
         var input = Path.of("src", "day_13/input.txt");
-        var lines = Files.readAllLines(input);
+        try (var lines = Files.lines(input)) {
 
-        var pairs = new ArrayList<Pair>();
+            var paquets = lines.filter(line -> line.startsWith("[")).toArray(String[]::new);
+            var pairs = new ArrayList<Pair>();
+            
+            for (int i = 0; i < paquets.length; i += 2) {
+                var left = listParser(new StringIterator(paquets[i]));
+                var right = listParser(new StringIterator(paquets[i + 1]));
+                pairs.add(new Pair(left, right, i / 2 + 1));
+            }
 
-        for (int i = 0; i < lines.size() - 1; i += 3) {
-            var left = listParser(new StringIterator(lines.get(i)));
-            var right = listParser(new StringIterator(lines.get(i + 1)));
-            pairs.add(new Pair(left, right, i / 3 + 1));
+            System.out.println(pairs.stream()
+                    .filter(Pair::rightOrder)
+                    .mapToInt(Pair::index)
+                    .sum());
         }
-
-        System.out.println(pairs.stream()
-                .filter(Pair::rightOrder)
-                .mapToInt(Pair::index)
-                .sum());
     }
 
     public static PacketList listParser(StringIterator it) {
