@@ -4,10 +4,6 @@ import java.util.List;
 
 public record PacketList(List<Value> list) implements Value {
 
-    public PacketList() {
-        this(List.of());
-    }
-
     @Override
     public boolean isList() {
         return true;

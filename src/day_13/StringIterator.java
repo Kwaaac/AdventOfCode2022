@@ -22,6 +22,20 @@ public class StringIterator implements Iterator<String> {
         if (!hasNext()) {
             throw new IllegalStateException();
         }
-        return String.valueOf(str.charAt(index++));
+        var s = String.valueOf(str.charAt(index++));
+
+        if (s.matches("\\d")) {
+            for (int i = index; i < str.length(); i++) {
+                var val = String.valueOf(str.charAt(i));
+                if (val.matches("\\d")) {
+                    s += val;
+                    index++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return s;
     }
 }
